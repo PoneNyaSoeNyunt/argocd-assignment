@@ -34,6 +34,7 @@ kind: Ingress
 metadata:
   name: web-ingress
 spec:
+  ingressClassName: kong
   rules:
   - host: my-app.local # You will map this in your Windows hosts file
     http:
