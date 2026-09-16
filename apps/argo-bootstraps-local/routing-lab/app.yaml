@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-one
+  namespace: dev-ops
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-one
+  template:
+    metadata:
+      labels:
+        app: app-one
+    spec:
+      containers:
+      - name: echo
+        image: hashicorp/http-echo:0.2.3
+        args:
+        - "-text=Traffic routed successfully to App ONE"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-one
+  namespace: dev-ops
+spec:
+  selector:
+    app: app-one
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-two
+  namespace: dev-ops
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-two
+  template:
+    metadata:
+      labels:
+        app: app-two
+    spec:
+      containers:
+      - name: echo
+        image: hashicorp/http-echo:0.2.3
+        args:
+        - "-text=Traffic routed successfully to App TWO"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-two
+  namespace: dev-ops
+spec:
+  selector:
+    app: app-two
+  ports:
+  - port: 8080
+    targetPort: 8080
+    
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lab-ingress
+  namespace: dev-ops
+  annotations:
+    konghq.com/strip-path: "true"
+spec:
+  ingressClassName: kong
+  rules:
+  - host: my-app.local
+    http:
+      paths:
+      - path: /app1
+        pathType: Prefix
+        backend:
+          service:
+            name: app-one
+            port:
+              number: 8080
+      - path: /app2
+        pathType: Prefix
+        backend:
+          service:
+            name: app-two
+            port:
+              number: 8080
