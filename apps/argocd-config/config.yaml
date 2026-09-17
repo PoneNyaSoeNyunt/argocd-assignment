@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: intern-project
+  namespace: argocd
+spec:
+  description: Project for intern assignments
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: intern
+      server: https://kubernetes.default.svc
+    - namespace: dev-ops # <--- this line matters
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: routing-lab-app
+  namespace: argocd
+spec:
+  project: intern-project
+  source:
+    repoURL: "https://github.com/PoneNyaSoeNyunt/argocd-assignment.git"
+    targetRevision: main
+    path: "apps/argo-bootstraps-local/routing-lab"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev-ops # <--- Update target namespace
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true # Crucial so ArgoCD builds the dev-ops namespace
