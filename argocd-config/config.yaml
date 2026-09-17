@@ -30,7 +30,7 @@ spec:
   source:
     repoURL: "https://github.com/PoneNyaSoeNyunt/argocd-assignment.git"
     targetRevision: main
-    path: "apps/argo-bootstraps-local/routing-lab"
+    path: "apps/argocd-bootstraps-local/routing-lab"
   destination:
     server: https://kubernetes.default.svc
     namespace: dev-ops # <--- Update target namespace
